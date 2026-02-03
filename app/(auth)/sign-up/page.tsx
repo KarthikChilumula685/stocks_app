@@ -1,6 +1,6 @@
 "use client";
 
-import {CountrySelectField} from "@/components/forms/CountrySelectField";
+import { CountrySelectField } from "@/components/forms/CountrySelectField";
 import InputField from "@/components/forms/InputField";
 import SelectField from "@/components/forms/SelectField";
 import FooterLink from "@/components/forms/FooterLink";
@@ -12,8 +12,12 @@ import {
 } from "@/lib/constants";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { signUpWithEmail } from "@/lib/actions/auth.actions";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const SignUp = () => {
+  const router = useRouter();
   const {
     handleSubmit,
     register,
@@ -31,11 +35,16 @@ const SignUp = () => {
     },
     mode: "onBlur",
   });
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (data: SignUpFormData) => {
     try {
-      console.log(data);
+      const result = await signUpWithEmail(data);
+      if (result.success) router.push("/");
     } catch (error) {
       console.error(error);
+      toast.error("Sign up failed", {
+        description:
+          error instanceof Error ? error.message : 'Failed to create an account'
+      });
     }
   };
 
@@ -126,7 +135,11 @@ const SignUp = () => {
           {isSubmitting ? "Creating Account" : "Start Your Investing Journey"}
         </Button>
 
-        <FooterLink text="Already have an Account? " linkText="Sign in" href="/sign-in"></FooterLink>
+        <FooterLink
+          text="Already have an Account? "
+          linkText="Sign in"
+          href="/sign-in"
+        ></FooterLink>
       </form>
     </>
   );
